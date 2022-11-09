@@ -9,7 +9,7 @@ import {
     ActivityIndicator,
     ScrollView
 } from 'react-native';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import Loader from './components/Loader';
 
 const map_status = {
@@ -22,13 +22,14 @@ const map_status = {
 
 const IncidentRaisedPage = (props) => {
     const buttonRefs = React.useRef([]);
-    const [showMaap, setShowMap] = React.useState(false);
+    const [showMap, setShowMap] = React.useState(false);
     const [loader, setLoader] = React.useState(false)
     const [EmergencyTypeArrayData, setEmergencyTypeArrayData] = React.useState([]);
     const [staffLocation, setStaffLocation] = React.useState({
         latitude: 37.78825,
         longitude: -122.4324,
     });
+    const [selectedIncident, setSelectedIncident] = React.useState({});
 
     React.useEffect(() => {
         setLoader(true);
@@ -54,10 +55,14 @@ const IncidentRaisedPage = (props) => {
 
     const handleStaffUpdate = (item) => {
         setLoader(true);
-        item.StaffAssignedId = props.route.params.UserID;
+        setSelectedIncident(item)
+        const _data = {
+            IncidentReportId: item.IncidentReportId,
+            StaffAssignedId: props.route.params.UserID
+        }
         fetch('http://127.0.0.1:8000/emergencyresponseapp/raiseIncident/' + item.IncidentReportId, {
             method: 'PUT',
-            body: JSON.stringify(item)
+            body: JSON.stringify(_data)
         })
             .then((response) => response.json())
             .then(async (responseJson) => {
@@ -73,7 +78,8 @@ const IncidentRaisedPage = (props) => {
     }
 
     const getUserLocation = async (item) => {
-        await fetch('http://127.0.0.1:8000/emergencyresponseapp/userLocation/' + item.StaffAssignedId, {
+        setSelectedIncident(item);
+        await fetch('http://127.0.0.1:8000/emergencyresponseapp/userLocation/' + item.RaisedById, {
             method: 'GET'
         })
             .then((response) => response.json())
@@ -89,7 +95,10 @@ const IncidentRaisedPage = (props) => {
                 console.log('getStaffLocation error ' + error);
             })
     }
-
+    
+    const handleStatusUpdate = () => {
+        console.log('ok ', selectedIncident);
+    }
 
 
     if (loader) {
@@ -113,10 +122,13 @@ const IncidentRaisedPage = (props) => {
                                             item.StaffAssignedId == 0 ? <TouchableOpacity onPress={() => handleStaffUpdate(item)}
                                                 style={[{ height: 25, backgroundColor: 'green', borderRadius: 8 }, styles.alignment]}>
                                                 <Text style={{ color: 'white' }}>Accept</Text>
-                                            </TouchableOpacity> : <View onPress={() => setShowMap(true)}
+                                            </TouchableOpacity> : <TouchableOpacity onPress={async () => {
+                                                setShowMap(true);
+                                                await getUserLocation(item)
+                                            }}
                                                 style={[{ height: 25, backgroundColor: 'green', borderRadius: 8 }, styles.alignment]}>
                                                 <Text style={{ color: 'white' }}>Show Map</Text>
-                                            </View>
+                                            </TouchableOpacity>
                                         }
 
                                         <TouchableOpacity style={[{ height: 25, backgroundColor: 'red', borderRadius: 8 }, styles.alignment]}>
@@ -130,7 +142,7 @@ const IncidentRaisedPage = (props) => {
                     }
                 </ScrollView>
             </View>
-            <Modal visible={showMaap}>
+            <Modal visible={showMap}>
                 <View style={{ flex: 1 }}>
                     <View style={{ height: 400, width: 400 }}>
                         <MapView
@@ -138,15 +150,24 @@ const IncidentRaisedPage = (props) => {
                             style={styles.map}
                             initialRegion={{
                                 latitude: staffLocation.latitude,
-                                longitude:staffLocation.longitude,
+                                longitude: staffLocation.longitude,
                                 latitudeDelta: 0.05,
                                 longitudeDelta: 0.05,
                             }}
-                        />
+                        >
+                            <Marker
+                                coordinate={{ latitude: staffLocation.latitude, longitude: staffLocation.longitude }}
+                            />
+                        </MapView>
                     </View>
                     <TouchableOpacity onPress={() => setShowMap(false)}
-                        style={[{ height: 25, backgroundColor: 'green', borderRadius: 8 }, styles.alignment]}>
+                        style={[{ height: 40, backgroundColor: 'green', borderRadius: 8, margin: 10 }, styles.alignment]}>
                         <Text style={{ color: 'white' }}>Back</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={handleStatusUpdate}
+                        style={[{ height: 40, backgroundColor: 'green', borderRadius: 8, margin: 10 }, styles.alignment]}>
+                        <Text style={{ color: 'white' }}>Complete</Text>
                     </TouchableOpacity>
                 </View>
             </Modal>
@@ -163,6 +184,9 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         borderWidth: 1,
         borderColor: '#363636'
+    },
+    map: {
+        ...StyleSheet.absoluteFillObject,
     }
 });
 

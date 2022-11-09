@@ -8,7 +8,7 @@ import {
     ActivityIndicator
 } from 'react-native';
 
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 
 import Loader from './components/Loader';
 
@@ -32,7 +32,7 @@ const EmergencyAppPage = (props) => {
     }, []);
 
     const handleCustomerThings = async () => {
-        fetch('http://127.0.0.1:8000/emergencyresponseapp/raiseIncident/' + 1, {
+        fetch('http://127.0.0.1:8000/emergencyresponseapp/raiseIncident/' + props.route.params.UserID, {
             method: 'GET'
         })
             .then((response) => response.json())
@@ -156,7 +156,11 @@ const EmergencyAppPage = (props) => {
                             latitudeDelta: 0.05,
                             longitudeDelta: 0.05,
                         }}
-                    />
+                    >
+                        <Marker
+                        coordinate={{latitude : staffLocation.latitude , longitude : staffLocation.longitude}}
+                        />
+                    </MapView>
                 </View>
             </View>
         )
