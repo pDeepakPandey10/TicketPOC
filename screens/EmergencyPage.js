@@ -46,6 +46,8 @@ const EmergencyAppPage = (props) => {
                     return item.IncidentStatusId && item.StaffAssignedId != 0
                 });
 
+                console.log(isIncidentUnAssigned , ' ', isIncidentAssignedButPending);
+
                 if (isIncidentUnAssigned.length != 0) {
                     setIncidentRaisedModal(true);
                     getIncidentUpdate();
