@@ -55,7 +55,7 @@ const IncidentRaisedPage = (props) => {
 
     const handleStaffUpdate = (item) => {
         setLoader(true);
-        setSelectedIncident(item)
+        setSelectedIncident(item);
         const _data = {
             IncidentReportId: item.IncidentReportId,
             StaffAssignedId: props.route.params.UserID
@@ -97,7 +97,28 @@ const IncidentRaisedPage = (props) => {
     }
     
     const handleStatusUpdate = () => {
-        console.log('ok ', selectedIncident);
+        setLoader(true);
+        const _data = {
+            IncidentReportId: selectedIncident.IncidentReportId,
+            IncidentStatusId: 3
+        }
+        console.log('ok ', JSON.stringify(_data));
+        fetch('http://127.0.0.1:8000/emergencyresponseapp/raiseIncident/' + selectedIncident.IncidentReportId, {
+            method: 'PUT',
+            body: JSON.stringify(_data)
+        })
+            .then((response) => response.json())
+            .then(async (responseJson) => {
+                console.log('responseJson update', responseJson);
+                setLoader(false);
+                setShowMap(false);
+                getAllRaisedIncidents();
+            })
+            .catch((err) => {
+                console.log(err);
+                setLoader(false);
+                getAllRaisedIncidents();
+            })
     }
 
 
@@ -122,13 +143,15 @@ const IncidentRaisedPage = (props) => {
                                             item.StaffAssignedId == 0 ? <TouchableOpacity onPress={() => handleStaffUpdate(item)}
                                                 style={[{ height: 25, backgroundColor: 'green', borderRadius: 8 }, styles.alignment]}>
                                                 <Text style={{ color: 'white' }}>Accept</Text>
-                                            </TouchableOpacity> : <TouchableOpacity onPress={async () => {
+                                            </TouchableOpacity> : item.IncidentStatusId == 1 ? <TouchableOpacity onPress={async () => {
                                                 setShowMap(true);
                                                 await getUserLocation(item)
                                             }}
                                                 style={[{ height: 25, backgroundColor: 'green', borderRadius: 8 }, styles.alignment]}>
                                                 <Text style={{ color: 'white' }}>Show Map</Text>
-                                            </TouchableOpacity>
+                                            </TouchableOpacity> : <View style={[{ height: 25, backgroundColor: 'green', borderRadius: 8 }, styles.alignment]}>
+                                                <Text style={{ color: 'white' }}>Completed</Text>
+                                            </View>
                                         }
 
                                         <TouchableOpacity style={[{ height: 25, backgroundColor: 'red', borderRadius: 8 }, styles.alignment]}>

@@ -38,16 +38,22 @@ const EmergencyAppPage = (props) => {
             .then((response) => response.json())
             .then((responseJson) => {
                 setLoader(false)
-                console.log('getIncidentUpdate response ', responseJson)
-                if (responseJson?.IncidentStatusId == 1 && responseJson?.StaffAssignedId == 0) {
-                    console.log('setIncidentRaisedModal');
+                const isIncidentUnAssigned = responseJson.filter((item) => {
+                    return item.IncidentStatusId && item.StaffAssignedId == 0
+                });
+
+                const isIncidentAssignedButPending = responseJson.filter((item) => {
+                    return item.IncidentStatusId && item.StaffAssignedId != 0
+                });
+
+                console.log(isIncidentUnAssigned , ' ', isIncidentAssignedButPending);
+
+                if (isIncidentUnAssigned.length != 0) {
                     setIncidentRaisedModal(true);
                     getIncidentUpdate();
-                } else if (responseJson?.IncidentStatusId == 1 && responseJson?.StaffAssignedId != 0) {
-                    console.log('getStaffLocation')
+                } else if (isIncidentAssignedButPending.length != 0) {
                     getStaffLocation(responseJson)
                 } else {
-                    console.log('getAllEmergencyTypes ')
                     getAllEmergencyTypes();
                 }
             })
