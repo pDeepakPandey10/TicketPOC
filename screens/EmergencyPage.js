@@ -39,11 +39,11 @@ const EmergencyAppPage = (props) => {
             .then((responseJson) => {
                 setLoader(false)
                 const isIncidentUnAssigned = responseJson.filter((item) => {
-                    return item.IncidentStatusId && item.StaffAssignedId == 0
+                    return item.IncidentStatusId == 1 && item.StaffAssignedId == 0
                 });
 
                 const isIncidentAssignedButPending = responseJson.filter((item) => {
-                    return item.IncidentStatusId && item.StaffAssignedId != 0
+                    return item.IncidentStatusId == 1 && item.StaffAssignedId != 0
                 });
 
                 console.log(isIncidentUnAssigned , ' ', isIncidentAssignedButPending);
@@ -52,7 +52,7 @@ const EmergencyAppPage = (props) => {
                     setIncidentRaisedModal(true);
                     getIncidentUpdate();
                 } else if (isIncidentAssignedButPending.length != 0) {
-                    getStaffLocation(responseJson)
+                    getStaffLocation(isIncidentAssignedButPending[0])
                 } else {
                     getAllEmergencyTypes();
                 }
@@ -69,8 +69,10 @@ const EmergencyAppPage = (props) => {
             })
                 .then((response) => response.json())
                 .then((responseJson) => {
-                    console.log('getIncidentUpdate response ', responseJson)
-                    if (responseJson != 'Data not found' && responseJson?.StaffAssignedId != 0) {
+                    const isIncidentUnAssigned = responseJson.filter((item) => {
+                        return item.IncidentStatusId && item.StaffAssignedId == 0
+                    });
+                    if (isIncidentUnAssigned.length == 0) {
                         clearInterval(updateCalls);
                         updateCalls = null;
                         setIncidentRaisedModal(false)
@@ -126,6 +128,7 @@ const EmergencyAppPage = (props) => {
     }
 
     const getStaffLocation = (incident_data) => {
+        console.log('getStaffLocation: ' + JSON.stringify(incident_data));
         setShowStaffMap(true);
         staffLocUpdate = setInterval(async () => {
             await fetch('http://127.0.0.1:8000/emergencyresponseapp/userLocation/' + incident_data.StaffAssignedId, {
@@ -143,7 +146,7 @@ const EmergencyAppPage = (props) => {
                 .catch((error) => {
                     console.log('getStaffLocation error ' + error);
                 })
-        }, 3000);
+        }, 5000);
     }
 
     if (loader) {
