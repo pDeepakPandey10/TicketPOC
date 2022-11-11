@@ -32,7 +32,7 @@ const EmergencyAppPage = (props) => {
     }, []);
 
     const handleCustomerThings = async () => {
-        fetch('http://127.0.0.1:8000/emergencyresponseapp/raiseIncident/' + props.route.params.UserID, {
+        fetch('http://3.111.96.253:8000/emergencyresponseapp/raiseIncident/' + props.route.params.UserID, {
             method: 'GET'
         })
             .then((response) => response.json())
@@ -64,7 +64,7 @@ const EmergencyAppPage = (props) => {
 
     const getIncidentUpdate = () => {
         updateCalls = setInterval(async () => {
-            await fetch('http://127.0.0.1:8000/emergencyresponseapp/raiseIncident/' + props.route.params.UserID, {
+            await fetch('http://3.111.96.253:8000/emergencyresponseapp/raiseIncident/' + props.route.params.UserID, {
                 method: 'GET'
             })
                 .then((response) => response.json())
@@ -85,7 +85,7 @@ const EmergencyAppPage = (props) => {
     }
 
     const getAllEmergencyTypes = () => {
-        fetch('http://127.0.0.1:8000/emergencyresponseapp/emergencyTypes', {
+        fetch('http://3.111.96.253:8000/emergencyresponseapp/emergencyTypes', {
             method: 'GET'
         })
             .then((response) => response.json())
@@ -110,7 +110,7 @@ const EmergencyAppPage = (props) => {
             EmergencyTypeId: item.EmergencyTypeId
         }
 
-        fetch('http://127.0.0.1:8000/emergencyresponseapp/raiseIncident', {
+        fetch('http://3.111.96.253:8000/emergencyresponseapp/raiseIncident', {
             method: 'POST',
             body: JSON.stringify(IncidentData)
         })
@@ -131,7 +131,7 @@ const EmergencyAppPage = (props) => {
         console.log('getStaffLocation: ' + JSON.stringify(incident_data));
         setShowStaffMap(true);
         staffLocUpdate = setInterval(async () => {
-            await fetch('http://127.0.0.1:8000/emergencyresponseapp/userLocation/' + incident_data.StaffAssignedId, {
+            await fetch('http://3.111.96.253:8000/emergencyresponseapp/userLocation/' + incident_data.StaffAssignedId, {
                 method: 'GET'
             })
                 .then((response) => response.json())

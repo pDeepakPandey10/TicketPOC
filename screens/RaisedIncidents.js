@@ -37,7 +37,7 @@ const IncidentRaisedPage = (props) => {
     }, []);
 
     const getAllRaisedIncidents = () => {
-        fetch('http://127.0.0.1:8000/emergencyresponseapp/raiseIncident', {
+        fetch('http://3.111.96.253:8000/emergencyresponseapp/raiseIncident', {
             method: 'GET'
         })
             .then((response) => response.json())
@@ -60,7 +60,7 @@ const IncidentRaisedPage = (props) => {
             IncidentReportId: item.IncidentReportId,
             StaffAssignedId: props.route.params.UserID
         }
-        fetch('http://127.0.0.1:8000/emergencyresponseapp/raiseIncident/' + item.IncidentReportId, {
+        fetch('http://3.111.96.253:8000/emergencyresponseapp/raiseIncident/' + item.IncidentReportId, {
             method: 'PUT',
             body: JSON.stringify(_data)
         })
@@ -79,7 +79,7 @@ const IncidentRaisedPage = (props) => {
 
     const getUserLocation = async (item) => {
         setSelectedIncident(item);
-        await fetch('http://127.0.0.1:8000/emergencyresponseapp/userLocation/' + item.RaisedById, {
+        await fetch('http://3.111.96.253:8000/emergencyresponseapp/userLocation/' + item.RaisedById, {
             method: 'GET'
         })
             .then((response) => response.json())
@@ -103,7 +103,7 @@ const IncidentRaisedPage = (props) => {
             IncidentStatusId: 3
         }
         console.log('ok ', JSON.stringify(_data));
-        fetch('http://127.0.0.1:8000/emergencyresponseapp/raiseIncident/' + selectedIncident.IncidentReportId, {
+        fetch('http://3.111.96.253:8000/emergencyresponseapp/raiseIncident/' + selectedIncident.IncidentReportId, {
             method: 'PUT',
             body: JSON.stringify(_data)
         })
