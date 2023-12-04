@@ -15,6 +15,7 @@ import { dev_config } from '../screens/Constants';
 
 
 const EmergencyAppPage = (props) => {
+    console.log(' props ',props)
     const buttonRefs = React.useRef([]);
     const [incidentRaisedModal, setIncidentRaisedModal] = React.useState(false);
     const [showStaffLocation, setShowStaffMap] = React.useState(false);

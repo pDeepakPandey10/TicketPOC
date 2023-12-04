@@ -6,13 +6,14 @@ import {
     View,
     StyleSheet,
     Modal,
-    ActivityIndicator,
     ScrollView
 } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import Loader from './components/Loader';
 import { dev_config } from '../screens/Constants';
 import { useAuthContext } from './context/AuthContext';
+import QRCode from 'react-native-qrcode-svg';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const map_status = {
     1: 'Pending',
@@ -31,6 +32,7 @@ const IncidentRaisedPage = (props) => {
         longitude: -122.4324,
     });
     const [selectedIncident, setSelectedIncident] = React.useState({});
+    const [showQrModal, setShowQrModal] = React.useState(false);
 
     const { param } = useAuthContext();
 
@@ -104,7 +106,6 @@ const IncidentRaisedPage = (props) => {
             IncidentReportId: selectedIncident.IncidentReportId,
             IncidentStatusId: 3
         }
-        console.log('ok ', JSON.stringify(_data));
         fetch(dev_config.baseUrlDevice + 'raiseIncident/' + selectedIncident.IncidentReportId, {
             method: 'PUT',
             body: JSON.stringify(_data)
@@ -124,7 +125,8 @@ const IncidentRaisedPage = (props) => {
     }
 
     const handleListItemClick = (item) => {
-        console.log('item ',item)
+        setSelectedIncident(item);
+        setShowQrModal(true);
     }
 
 
@@ -138,7 +140,7 @@ const IncidentRaisedPage = (props) => {
                     {
                         EmergencyTypeArrayData.map((item, index) => (
                             <TouchableOpacity onPress={() => handleListItemClick(item)}
-                            key={index} style={[{ height: 80, margin: 10, paddingHorizontal: 10 }, styles.borderSettings]}>
+                                key={index} style={[{ height: 80, margin: 10, paddingHorizontal: 10 }, styles.borderSettings]}>
                                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
                                     <View style={{ flexDirection: 'column', flex: 1, justifyContent: 'space-between', marginVertical: 10 }}>
                                         <Text>Incident Id: {item.IncidentReportId}</Text>
@@ -198,6 +200,24 @@ const IncidentRaisedPage = (props) => {
                         style={[{ height: 40, backgroundColor: 'green', borderRadius: 8, margin: 10 }, styles.alignment]}>
                         <Text style={{ color: 'white' }}>Complete</Text>
                     </TouchableOpacity>
+                </View>
+            </Modal>
+            <Modal visible={showQrModal}>
+                <View style={{
+                    flex: 1
+                }}>
+                    <TouchableOpacity onPress={() => setShowQrModal(false)}>
+                        <Ionicons name='arrow-back-circle' size={30} color={'#333'} />
+                    </TouchableOpacity>
+
+                    <View style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}>
+                        <QRCode value={JSON.stringify(selectedIncident)} />
+                    </View>
+
                 </View>
             </Modal>
         </View>

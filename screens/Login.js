@@ -92,6 +92,9 @@ const Login = props => {
       .then((response) => response.json())
       .then((responseJson) => {
         console.log('login ',responseJson)
+        if(responseJson.detail) {
+          return Alert.alert('enter valid credentials');
+        }
         Geolocation.getCurrentPosition(info => {
           updateLocation(info.coords, responseJson);
         });
@@ -99,6 +102,7 @@ const Login = props => {
       })
       .catch((error) => {
         console.log('login error ' + error);
+        return Alert.alert('Logim failed, Please try again later');
       })
   }
 

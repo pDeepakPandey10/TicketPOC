@@ -58,9 +58,9 @@ const Track= (props) => {
           <TextInput style={[styles.textInput, {width:150, marginHorizontal:10}]} placeholder="Seat Number" textAlignVertical={'top'}></TextInput>
           <TouchableOpacity onPress={()=> {
             if(param.UserRoleId == 1){
-              props.navigation.navigate('IncidentRaisedPage',props.route.params)
+              props.navigation.navigate('IncidentRaisedPage',{...param})
             } else {
-              props.navigation.navigate('EmergencyAppPage',props.route.params)
+              props.navigation.navigate('EmergencyAppPage',{...param})
             }
             
           }}
