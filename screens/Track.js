@@ -22,14 +22,14 @@ import {
 } from 'react-native';
 
 import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
+  Colors
 } from 'react-native/Libraries/NewAppScreen';
 
+
+import { useAuthContext } from './context/AuthContext';
+
 const Track= (props) => {
+  console.log('initial params ',props);
   const isDarkMode = useColorScheme() === 'dark';
   let deviceWidth = Dimensions.get('window').width;
   let deviceHeight = Dimensions.get('window').height;
@@ -38,6 +38,8 @@ const Track= (props) => {
   const backgroundStyle = {
     backgroundColor: '#fff',
   };
+
+  const { param } = useAuthContext();
 
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -55,8 +57,7 @@ const Track= (props) => {
           <View style={{flexDirection:'row', alignItems:'center', }}>
           <TextInput style={[styles.textInput, {width:150, marginHorizontal:10}]} placeholder="Seat Number" textAlignVertical={'top'}></TextInput>
           <TouchableOpacity onPress={()=> {
-            console.log('props.route.params ',);
-            if(props.route.params.UserRoleId == 1){
+            if(param.UserRoleId == 1){
               props.navigation.navigate('IncidentRaisedPage',props.route.params)
             } else {
               props.navigation.navigate('EmergencyAppPage',props.route.params)

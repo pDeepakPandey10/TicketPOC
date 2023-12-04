@@ -6,6 +6,9 @@ import Login from './screens/Login';
 import Track from './screens/Track';
 import EmergencyAppPage from './screens/EmergencyPage';
 import IncidentRaisedPage from './screens/RaisedIncidents';
+import RegistrationScreen from './screens/Registration/Registration';
+import Toast from 'react-native-toast-message';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -30,16 +33,20 @@ function App() {
   }
   return (
     <NavigationContainer>
-      <AuthContext.Provider value={{ isSignedIn, dispatch }}>
+      <AuthContext.Provider value={{ isSignedIn, param, dispatch }}>
         <Stack.Navigator>
           {
             isSignedIn ? <>
-              <Stack.Screen name="HomePage" component={Track} initialParams={param} />
-              <Stack.Screen name="EmergencyAppPage" component={EmergencyAppPage} />
-              <Stack.Screen name="IncidentRaisedPage" component={IncidentRaisedPage} /></> : <Stack.Screen name="Login" component={Login} />
+              <Stack.Screen name="HomePage" component={Track}/>
+              <Stack.Screen name="EmergencyAppPage" component={EmergencyAppPage}/>
+              <Stack.Screen name="IncidentRaisedPage" component={IncidentRaisedPage}/></> : <>
+              <Stack.Screen name="Login" component={Login} />
+              <Stack.Screen name="RegistrationScreen" component={RegistrationScreen} />
+            </>
           }
         </Stack.Navigator>
       </AuthContext.Provider>
+      <Toast />
     </NavigationContainer>
   );
 }

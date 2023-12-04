@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import Loader from './components/Loader';
+import { dev_config } from '../screens/Constants';
+import { useAuthContext } from './context/AuthContext';
 
 const map_status = {
     1: 'Pending',
@@ -21,7 +23,6 @@ const map_status = {
 
 
 const IncidentRaisedPage = (props) => {
-    const buttonRefs = React.useRef([]);
     const [showMap, setShowMap] = React.useState(false);
     const [loader, setLoader] = React.useState(false)
     const [EmergencyTypeArrayData, setEmergencyTypeArrayData] = React.useState([]);
@@ -31,13 +32,15 @@ const IncidentRaisedPage = (props) => {
     });
     const [selectedIncident, setSelectedIncident] = React.useState({});
 
+    const { param } = useAuthContext();
+
     React.useEffect(() => {
         setLoader(true);
         getAllRaisedIncidents();
     }, []);
 
     const getAllRaisedIncidents = () => {
-        fetch('http://3.111.96.253:8000/emergencyresponseapp/raiseIncident', {
+        fetch(dev_config.baseUrlDevice + 'raiseIncident', {
             method: 'GET'
         })
             .then((response) => response.json())
@@ -45,7 +48,6 @@ const IncidentRaisedPage = (props) => {
                 console.log('raised Incident: ' + JSON.stringify(responseJson));
                 setEmergencyTypeArrayData(responseJson.reverse());
                 setLoader(false);
-                buttonRefs.current = buttonRefs.current.slice(0, EmergencyTypeArrayData.length);
             })
             .catch((error) => {
                 console.log('error ' + error);
@@ -58,9 +60,9 @@ const IncidentRaisedPage = (props) => {
         setSelectedIncident(item);
         const _data = {
             IncidentReportId: item.IncidentReportId,
-            StaffAssignedId: props.route.params.UserID
+            StaffAssignedId: param.UserID
         }
-        fetch('http://3.111.96.253:8000/emergencyresponseapp/raiseIncident/' + item.IncidentReportId, {
+        fetch(dev_config.baseUrlDevice + 'raiseIncident/' + item.IncidentReportId, {
             method: 'PUT',
             body: JSON.stringify(_data)
         })
@@ -79,7 +81,7 @@ const IncidentRaisedPage = (props) => {
 
     const getUserLocation = async (item) => {
         setSelectedIncident(item);
-        await fetch('http://3.111.96.253:8000/emergencyresponseapp/userLocation/' + item.RaisedById, {
+        await fetch(dev_config.baseUrlDevice + 'userLocation/' + item.RaisedById, {
             method: 'GET'
         })
             .then((response) => response.json())
@@ -95,7 +97,7 @@ const IncidentRaisedPage = (props) => {
                 console.log('getStaffLocation error ' + error);
             })
     }
-    
+
     const handleStatusUpdate = () => {
         setLoader(true);
         const _data = {
@@ -103,7 +105,7 @@ const IncidentRaisedPage = (props) => {
             IncidentStatusId: 3
         }
         console.log('ok ', JSON.stringify(_data));
-        fetch('http://3.111.96.253:8000/emergencyresponseapp/raiseIncident/' + selectedIncident.IncidentReportId, {
+        fetch(dev_config.baseUrlDevice + 'raiseIncident/' + selectedIncident.IncidentReportId, {
             method: 'PUT',
             body: JSON.stringify(_data)
         })
@@ -121,6 +123,10 @@ const IncidentRaisedPage = (props) => {
             })
     }
 
+    const handleListItemClick = (item) => {
+        console.log('item ',item)
+    }
+
 
     if (loader) {
         return <Loader />
@@ -131,8 +137,8 @@ const IncidentRaisedPage = (props) => {
                 <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
                     {
                         EmergencyTypeArrayData.map((item, index) => (
-                            <View key={index} ref={el => buttonRefs.current[index] = el}
-                                style={[{ height: 80, margin: 10, paddingHorizontal: 10 }, styles.borderSettings]}>
+                            <TouchableOpacity onPress={() => handleListItemClick(item)}
+                            key={index} style={[{ height: 80, margin: 10, paddingHorizontal: 10 }, styles.borderSettings]}>
                                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
                                     <View style={{ flexDirection: 'column', flex: 1, justifyContent: 'space-between', marginVertical: 10 }}>
                                         <Text>Incident Id: {item.IncidentReportId}</Text>
@@ -160,7 +166,7 @@ const IncidentRaisedPage = (props) => {
                                     </View>
                                 </View>
 
-                            </View>
+                            </TouchableOpacity>
                         ))
                     }
                 </ScrollView>

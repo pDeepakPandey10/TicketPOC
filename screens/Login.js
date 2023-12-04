@@ -23,31 +23,22 @@ import {
 import {useAuthContext} from './context/AuthContext';
 import {PermissionsAndroid} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
-import {dev_config} from '../screens/Constants';
+import {
+  Colors
+} from 'react-native/Libraries/NewAppScreen';
+import { dev_config } from '../screens/Constants';
+import { useNavigation } from '@react-navigation/native';
 
 const Login = props => {
   const isDarkMode = useColorScheme() === 'dark';
   const [user_name, setUserName] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [users, setUsers] = React.useState([]);
+  const [pssd, setPssd] = React.useState('');
   const backgroundStyle = {
     backgroundColor: '#fff',
   };
+  const navigation = useNavigation();
 
   React.useEffect(() => {
-    console.log(dev_config.baseUrlLS + 'user');
-    fetch(dev_config.baseUrlLS + 'user', {
-      method: 'GET',
-    })
-      .then(response => response.json())
-      .then(responseJson => {
-        console.log('users ' + JSON.stringify(responseJson));
-        setUsers(responseJson);
-      })
-      .catch(error => {
-        console.log('users error ' + error);
-      });
     requestLocationPermission();
   }, []);
 
@@ -71,12 +62,11 @@ const Login = props => {
   };
 
   const updateLocation = (coordinates, user_data) => {
-    console.log('coordinates: ' + JSON.stringify(coordinates) + ' ', user_data);
     const location_data = {
       latitude: coordinates.latitude,
-      longitude: coordinates.longitude,
-    };
-    fetch(dev_config.baseUrlLS + 'userLocation/' + user_data.UserID, {
+      longitude: coordinates.longitude
+    }
+    fetch(dev_config.baseUrlDevice + 'userLocation/' + user_data.UserID, {
       method: 'PATCH',
       body: JSON.stringify(location_data),
     })
@@ -91,23 +81,26 @@ const Login = props => {
 
   const {dispatch} = useAuthContext();
 
-  const handleSignIn = async () => {
-    if (user_name == '' || password == '') {
-      Alert.alert('Please enter username and password');
-      return;
-    }
-    const filter_user = users.filter(item => {
-      return item.UserName == user_name;
-    });
-    if (filter_user.length > 0) {
-      Geolocation.getCurrentPosition(info => {
-        updateLocation(info.coords, filter_user[0]);
-      });
-      dispatch(true, filter_user[0]);
-    } else {
-      console.log('error');
-    }
-  };
+  const handleSignIn = () => {
+    fetch(dev_config.baseUrlDevice + 'login', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: user_name,
+        password: pssd
+      })
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        console.log('login ',responseJson)
+        Geolocation.getCurrentPosition(info => {
+          updateLocation(info.coords, responseJson);
+        });
+        dispatch(true, responseJson);
+      })
+      .catch((error) => {
+        console.log('login error ' + error);
+      })
+  }
 
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -126,32 +119,15 @@ const Login = props => {
             source={require('../assets/images/ticket.jpeg')}
             style={{width: 150, height: 140, alignSelf: 'center'}}
           />
-          <TextInput
-            style={styles.textInput}
-            onChangeText={val => {
-              setUserName(val);
-            }}
-            placeholder="Username"
-            value={user_name}
-            textAlignVertical={'top'}></TextInput>
-          <TextInput
-            style={styles.textInput}
-            value={password}
-            placeholder="Password"
-            onChangeText={val => {
-              setPassword(val);
-            }}
-            secureTextEntry={true}
-            textAlignVertical={'top'}></TextInput>
-          <TouchableOpacity
-            style={{
-              height: 45,
-              width: 300,
-              backgroundColor: '#00008B',
-              alignItems: 'center',
-              borderRadius: 8,
-              marginVertical: 15,
-            }}
+          <TextInput style={styles.textInput} onChangeText={(val) => {
+            setUserName(val);
+          }} placeholder="Username" value={user_name} textAlignVertical={'top'} />
+          <TextInput style={styles.textInput} 
+          value={pssd} placeholder="Password" 
+          secureTextEntry={true} 
+          onChangeText={(val) => setPssd(val)}
+          textAlignVertical={'top'}/>
+          <TouchableOpacity style={{ height: 45, width: 300, backgroundColor: '#00008B', alignItems: 'center', borderRadius: 8, marginVertical: 15 }}
             onPress={handleSignIn}>
             <Text
               style={[
@@ -161,6 +137,18 @@ const Login = props => {
                 },
               ]}>
               Log in
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{ height: 45, width: 300, backgroundColor: '#00008B', alignItems: 'center', borderRadius: 8, marginVertical: 15 }}
+            onPress={() => navigation.navigate("RegistrationScreen")}>
+            <Text
+              style={[
+                styles.sectionTitle,
+                {
+                  color: Colors.white,
+                },
+              ]}>
+              Sign Up
             </Text>
           </TouchableOpacity>
         </View>

@@ -11,6 +11,7 @@ import {
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 
 import Loader from './components/Loader';
+import { dev_config } from '../screens/Constants';
 
 
 const EmergencyAppPage = (props) => {
@@ -32,12 +33,13 @@ const EmergencyAppPage = (props) => {
     }, []);
 
     const handleCustomerThings = async () => {
-        fetch('http://3.111.96.253:8000/emergencyresponseapp/raiseIncident/' + props.route.params.UserID, {
+        fetch(dev_config.baseUrlDevice + 'raiseIncident/' + props.route.params.UserID, {
             method: 'GET'
         })
             .then((response) => response.json())
             .then((responseJson) => {
-                setLoader(false)
+                console.log('raised Incident ',responseJson)
+                setLoader(false);
                 const isIncidentUnAssigned = responseJson.filter((item) => {
                     return item.IncidentStatusId == 1 && item.StaffAssignedId == 0
                 });
@@ -64,7 +66,7 @@ const EmergencyAppPage = (props) => {
 
     const getIncidentUpdate = () => {
         updateCalls = setInterval(async () => {
-            await fetch('http://3.111.96.253:8000/emergencyresponseapp/raiseIncident/' + props.route.params.UserID, {
+            await fetch(dev_config.baseUrlDevice + 'raiseIncident/' + props.route.params.UserID, {
                 method: 'GET'
             })
                 .then((response) => response.json())
@@ -75,7 +77,7 @@ const EmergencyAppPage = (props) => {
                     if (isIncidentUnAssigned.length == 0) {
                         clearInterval(updateCalls);
                         updateCalls = null;
-                        setIncidentRaisedModal(false)
+                        setIncidentRaisedModal(false);
                     }
                 })
                 .catch((error) => {
@@ -85,7 +87,7 @@ const EmergencyAppPage = (props) => {
     }
 
     const getAllEmergencyTypes = () => {
-        fetch('http://3.111.96.253:8000/emergencyresponseapp/emergencyTypes', {
+        fetch(dev_config.baseUrlDevice + 'emergencyTypes', {
             method: 'GET'
         })
             .then((response) => response.json())
@@ -110,7 +112,7 @@ const EmergencyAppPage = (props) => {
             EmergencyTypeId: item.EmergencyTypeId
         }
 
-        fetch('http://3.111.96.253:8000/emergencyresponseapp/raiseIncident', {
+        fetch(dev_config.baseUrlDevice + 'raiseIncident', {
             method: 'POST',
             body: JSON.stringify(IncidentData)
         })
